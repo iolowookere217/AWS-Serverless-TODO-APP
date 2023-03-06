@@ -1,15 +1,15 @@
 # TODO: Change the name of the org 
 org: iolowookere217
-app: serverless-todo-app-1
-service: serverless-todo-app-1
-frameworkVersion: '3.27.0'
+app: serverless-todo-app-2
+service: serverless-todo-app-2
+frameworkVersion: '3.28.1'
 
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
   - serverless-plugin-tracing
-  #- serverless-reqvalidator
-  - serverless-aws-documentation
+  # - serverless-reqvalidator
+  # - serverless-aws-documentation
 
 provider:
   name: aws
@@ -26,12 +26,12 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    PROJECT_NAME: serverless-todo-app-1
-    TODOS_TABLE: serverless-todo-app-1-${self:provider.stage}
+    PROJECT_NAME: serverless-todo-app-2
+    TODOS_TABLE: serverless-todo-table-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-todo-app-1-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-todo-bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    #INDEX_NAME: ${self:provider.environment.TODOS.CREATED_AT_INDEX}
+    INDEX_NAME: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
 
 
 
@@ -126,7 +126,6 @@ functions:
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
-  
   # UpdateTodo:
   #   handler: src/lambda/http/updateTodo.handler
   #   events:
