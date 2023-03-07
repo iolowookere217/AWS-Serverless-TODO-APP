@@ -29,7 +29,7 @@ provider:
     PROJECT_NAME: serverless-todo-app-2
     TODOS_TABLE: serverless-todo-table-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-todo-bucket-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-todo-bucket-fix-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     INDEX_NAME: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
 
@@ -88,12 +88,10 @@ functions:
   hello:
     handler: handler.hello
     events:
-      - httpApi:
+      - http:
           path: /
           method: get
 
-  # Auth:
-  #   handler: src/lambda/auth/auth0Authorizer.handler
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property for performing Actions on DynamoDB
@@ -119,7 +117,7 @@ functions:
           method: post
           path: todos
           cors: true
-          # authorizer: Auth
+          authorizer: Auth
           # request:
           #   schemas:
           #     application/json: ${file(models/create-todo-model.json)}
@@ -179,11 +177,11 @@ resources:
     # Feel free to change the names as you like. 
     
     GatewayResponseDefault4XX:
-       Type: AWS::ApiGateway::GatewayResponse
-       Properties:
-        ResponceParameters:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type, X-Amz-Date, Authorization, X-Api-Key'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
           gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
         ResponseType: DEFAULT_4XX
         RestApiId:
@@ -216,16 +214,16 @@ resources:
           - AttributeName: userId
             KeyType: HASH
           - AttributeName: todoId
-            keyType: RANGE
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: $(self:provider.environment.TODOS_TABLE)
-        LocalSecondaryIndexes:
-          - IndexName: $(self:provider.environment.TODOS_CREATED_AT_INDEX)
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        LocalSecondaryIndexes: 
+          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
             KeySchema:
-              - AttributName: userId
+              - AttributeName: userId
                 KeyType: HASH
               - AttributeName: createdAt
-                keyType: RANGE
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL #what attributes will be copied to an index
 
@@ -235,7 +233,7 @@ resources:
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: $(self:provider.environment.ATTACHMENT_S3_BUCKET)
+        BucketName: ${self:provider.environment.ATTACHMENT_S3_BUCKET}
         CorsConfiguration:
           CorsRules:
             -
@@ -249,7 +247,7 @@ resources:
                 - POST
                 - DELETE
                 - HEAD
-              MaxAge: 300
+              MaxAge: 3000
 
     # TODO: Complete the policy below and attach it to the bucket defined above
     # For cross referencing the name of the bucket, use "!Ref AttachmentsBucket"
@@ -258,9 +256,8 @@ resources:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
-          # DeletionPolicy: Retain
           Id: MyPolicy
-          Version: "2008-10-17"
+          Version: "2012-10-17"
           Statement:
             - Sid: PublicReadForGetBucketObjects
               Effect: Allow
