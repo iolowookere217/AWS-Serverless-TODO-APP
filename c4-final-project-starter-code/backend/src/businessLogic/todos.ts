@@ -51,14 +51,14 @@ export async function updateTodo(
     return todosAccess.updateTodoItem(todoId, userId, todoUpdate)
 }
 
-// // write delete todo function
-// export async function deleteTodo(
-//     todoId: string,
-//     userId: string
-// ): Promise<string> {
-//     logger.info('Delete todo function called')
-//     return todosAccess.deleteTodoItem(todoId, userId)
-// }
+// write delete todo function
+export async function deleteTodo(
+    todoId: string,
+    userId: string
+): Promise<string> {
+    logger.info('Delete todo function called')
+    return todosAccess.deleteTodoItem(todoId, userId)
+}
 
 // // write create attachment function
 // export async function createAttachmentPresignedUrl(
