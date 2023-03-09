@@ -60,11 +60,11 @@ export async function deleteTodo(
     return todosAccess.deleteTodoItem(todoId, userId)
 }
 
-// // write create attachment function
-// export async function createAttachmentPresignedUrl(
-//     todoId: string,
-//     userId: string
-// ): Promise<string> {
-//     logger.info('create attachment function called by user', userId, todoId)
-//     return attachmentUtils.getUploadUrl(todoId)
-// }
+// write create attachment function
+export async function createAttachmentPresignedUrl(
+    todoId: string,
+    userId: string
+): Promise<string> {
+    logger.info('create attachment function called by user', userId, todoId)
+    return attachmentUtils.getUploadUrl(todoId)
+}
