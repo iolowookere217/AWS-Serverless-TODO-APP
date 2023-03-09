@@ -1,4 +1,4 @@
-import { CustomAuthorizerEvent, CustomAuthorizerResult } from 'aws-lambda'
+import { CustomAuthorizerResult } from 'aws-lambda'
 import 'source-map-support/register'
 
 import { verify, decode } from 'jsonwebtoken'
@@ -14,8 +14,9 @@ const logger = createLogger('auth')
 // To get this URL you need to go to an Auth0 page -> Show Advanced Settings -> Endpoints -> JSON Web Key Set
 const jwksUrl = 'https://dev-3dmxhwpvzdpkqn2k.us.auth0.com/.well-known/jwks.json'
 
+
 export const handler = async (
-  event: CustomAuthorizerEvent
+  event: any
 ): Promise<CustomAuthorizerResult> => {
   logger.info('Authorizing a user', event.authorizationToken)
   try {
@@ -55,6 +56,7 @@ export const handler = async (
 }
 
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
+  logger.info('Verifying token', authHeader.substring(0, 20))
   const token = getToken(authHeader)
   const jwt: Jwt = decode(token, { complete: true }) as Jwt
 
@@ -73,8 +75,14 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   // get pem data
   const pemData = signingKeys.x5c[0]
 
+  // convert pem Data to cert
+  const cert = `-----BEGIN CERTIFICATE-----\n${pemData}\n-----END CERTIFICATE-----`
 
-  // return undefined
+  //verify token
+  const verifiedToken = verify(token, cert, { algorithms: ['RS256'] }) as JwtPayload
+  logger.info('verifiedToken', verifiedToken)
+  return verifiedToken
+
 }
 
 function getToken(authHeader: string): string {
